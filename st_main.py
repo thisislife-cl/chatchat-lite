@@ -1,7 +1,5 @@
 import streamlit as st
-from chat_page import chat_page
-from agent_chat_page import agent_chat_page
-from rag_chat_page import rag_chat_page
+from webui import chat_page, rag_chat_page, agent_chat_page
 
 if __name__ == "__main__":
     # with st.sidebar:
@@ -16,6 +14,5 @@ if __name__ == "__main__":
             st.Page(st.write, title="知识库管理", icon=":material/library_books:"),
             st.Page(st.chat_input, title="模型管理", icon=":material/settings:"),
         ]
-
     })
     pg.run()

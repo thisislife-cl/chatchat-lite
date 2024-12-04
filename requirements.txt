@@ -4,3 +4,7 @@ ollama
 xinference-client
 streamlit
 langgraph
+tiktoken
+chromadb
+langchain
+langchain-text-splitters

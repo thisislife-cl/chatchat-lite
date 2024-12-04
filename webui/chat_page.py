@@ -1,26 +1,27 @@
 import streamlit as st
 from utils import PLATFORMS, get_models, get_chatllm
 
-def get_response(platform, model, temperature, input):
+def get_chat_response(platform, model, temperature, input):
     llm = get_chatllm(platform, model, temperature=temperature)
     for chunk in llm.stream(input):
         yield chunk.content
 
 def display_chat_history():
-    for message in st.session_state["rag_chat_history"]:
-        with st.chat_message(message["role"]):
-            st.write(message["content"])
+    for message in st.session_state["chat_history"]:
+        with st.chat_message(message[0]):
+            st.write(message[1])
 
 def clear_chat_history():
-    st.session_state["rag_chat_history"] = []
+    st.session_state["chat_history"] = []
 
 
-def rag_chat_page():
-    if "rag_chat_history" not in st.session_state:
-        st.session_state["rag_chat_history"] = []
+def chat_page():
+    if "chat_history" not in st.session_state:
+        st.session_state["chat_history"] = []
 
     with st.sidebar:
         st.title("Chatbot")
+
 
     display_chat_history()
 
@@ -36,15 +37,15 @@ def rag_chat_page():
     if input:
         with st.chat_message("user"):
             st.write(input)
-        st.session_state["rag_chat_history"] += [{"role": 'user', "content": input}]
+        st.session_state["chat_history"] += [('user', input)]
 
-        stream_response = get_response(
+        stream_response = get_chat_response(
             platform,
             model,
             temperature,
-            st.session_state["rag_chat_history"][-history_len:]
+            st.session_state["chat_history"][-history_len:]
         )
 
         with st.chat_message("assistant"):
             response = st.write_stream(stream_response)
-        st.session_state["rag_chat_history"] += [{"role": 'assistant', "content": response}]
+        st.session_state["chat_history"] += [('assistant', response)]
