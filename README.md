@@ -8,3 +8,8 @@ Python >= 3.9
 ```bash
 pip install -r requirements.txt
 ```
+
+## 运行项目
+```bash
+streamlit run st_main.py
+```
