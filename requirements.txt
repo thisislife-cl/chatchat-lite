@@ -8,3 +8,5 @@ tiktoken
 chromadb
 langchain
 langchain-text-splitters
+bs4
+streamlit-flow-component
