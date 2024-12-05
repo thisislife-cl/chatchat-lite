@@ -1,5 +1,5 @@
 import streamlit as st
-from utils import PLATFORMS, get_models, get_chatllm
+from utils import PLATFORMS, get_llm_models, get_chatllm, get_embedding_model
 
 def get_chat_response(platform, model, temperature, input):
     llm = get_chatllm(platform, model, temperature=temperature)
@@ -29,7 +29,8 @@ def chat_page():
         cols = st.columns([1.2, 10, 1])
         with cols[0].popover(":gear:", use_container_width=True, help="配置模型"):
             platform = st.selectbox("请选择要使用的模型加载方式", PLATFORMS)
-            model = st.selectbox("请选择要使用的模型", get_models(platform))
+            llm_models = get_llm_models(platform)
+            model = st.selectbox("请选择要使用的模型", llm_models)
             temperature = st.slider("请选择历史消息长度", 0.1, 1., 0.1)
             history_len = st.slider("请选择历史消息长度", 1, 10, 5)
         input = cols[1].chat_input("请输入您的问题")

@@ -1,5 +1,5 @@
 import streamlit as st
-from webui import chat_page, rag_chat_page, agent_chat_page
+from webui import chat_page, rag_chat_page, agent_chat_page, knowledge_base_page
 
 if __name__ == "__main__":
     # with st.sidebar:
@@ -10,9 +10,9 @@ if __name__ == "__main__":
             st.Page(rag_chat_page, title="RAG 对话", icon=":material/chat:"),
             st.Page(agent_chat_page, title="Agent 对话", icon=":material/chat_add_on:"),
         ],
-        # "设置": [
-        #     st.Page(st.write, title="知识库管理", icon=":material/library_books:"),
-        #     st.Page(st.chat_input, title="模型管理", icon=":material/settings:"),
-        # ]
+        "设置": [
+            st.Page(knowledge_base_page, title="知识库管理", icon=":material/library_books:"),
+            # st.Page(st.chat_input, title="模型管理", icon=":material/settings:"),
+        ]
     })
     pg.run()

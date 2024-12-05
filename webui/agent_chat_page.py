@@ -1,12 +1,16 @@
 import streamlit as st
-from utils import PLATFORMS, get_models, get_chatllm
+from utils import PLATFORMS, get_llm_models, get_chatllm, get_kb_names
 from typing import Literal
 from langchain_core.messages import AIMessageChunk, ToolMessage
 from langgraph.checkpoint.memory import MemorySaver
 from langgraph.graph import END, START, StateGraph, MessagesState
 from langgraph.prebuilt import ToolNode
-from tools import weather_search
+from tools import weather_search, naive_rag
 
+kbs = get_kb_names()
+TOOLS = {"天气查询": weather_search}
+for k in kbs:
+    TOOLS[f"{k} 知识库"] = naive_rag(k)
 
 def should_continue(state: MessagesState) -> Literal["tools", END]:
     messages = state['messages']
@@ -17,8 +21,8 @@ def should_continue(state: MessagesState) -> Literal["tools", END]:
     return END
 
 
-def get_agent_graph(platform, model, temperature):
-    tools = [weather_search]
+def get_agent_graph(platform, model, temperature, selected_tools):
+    tools = [TOOLS[k] for k in selected_tools]
     tool_node = ToolNode(tools)
 
     def call_model(state):
@@ -47,6 +51,7 @@ def graph_response(graph, input):
         stream_mode="messages",
     ):
         # st.write(event)
+        # st.write(graph.get_state_history(config={"configurable": {"thread_id": 42}},))
 
         if type(event[0]) == AIMessageChunk:
             yield event[0].content
@@ -61,8 +66,8 @@ def graph_response(graph, input):
                 s.update(label="Completed Calling Tool!", expanded=False)
 
 
-def get_agent_chat_response(platform, model, temperature, input):
-    app = get_agent_graph(platform, model, temperature)
+def get_agent_chat_response(platform, model, temperature, input, selected_tools):
+    app = get_agent_graph(platform, model, temperature, selected_tools)
     return graph_response(graph=app, input=input)
 
 
@@ -80,7 +85,7 @@ def agent_chat_page():
         st.session_state["agent_chat_history"] = []
 
     with st.sidebar:
-        st.title("Chatbot")
+        selected_tools = st.multiselect("请选择对话中可使用的工具", list(TOOLS.keys()), default=list(TOOLS.keys()))
 
     display_chat_history()
 
@@ -88,7 +93,7 @@ def agent_chat_page():
         cols = st.columns([1.2, 10, 1])
         with cols[0].popover(":gear:", use_container_width=True, help="配置模型"):
             platform = st.selectbox("请选择要使用的模型加载方式", PLATFORMS)
-            model = st.selectbox("请选择要使用的模型", get_models(platform))
+            model = st.selectbox("请选择要使用的模型", get_llm_models(platform))
             temperature = st.slider("请选择历史消息长度", 0.1, 1., 0.1)
             history_len = st.slider("请选择历史消息长度", 1, 10, 5)
         input = cols[1].chat_input("请输入您的问题")
@@ -103,7 +108,8 @@ def agent_chat_page():
             platform,
             model,
             temperature,
-            st.session_state["agent_chat_history"][-history_len:]
+            st.session_state["agent_chat_history"][-history_len:],
+            selected_tools
         )
 
         with st.chat_message("assistant"):

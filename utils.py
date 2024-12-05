@@ -1,4 +1,4 @@
-
+import os
 from typing import Literal
 from langchain_openai import ChatOpenAI
 from streamlit_flow import streamlit_flow
@@ -7,19 +7,30 @@ from streamlit_flow.state import StreamlitFlowState
 from streamlit_flow.layouts import TreeLayout
 
 
-PLATFORMS = ["ollama", "xinference", "fastchat", "openai"]
+PLATFORMS = ["ollama"] # ["ollama", "xinference", "fastchat", "openai"]
 
 
-def get_models(platform_type: Literal[tuple(PLATFORMS)]):
+def get_llm_models(platform_type: Literal[tuple(PLATFORMS)]):
     if platform_type == "ollama":
         import ollama
-        models = [model["model"] for model in ollama.list()["models"]]
-        return models
+        llm_models = [model["model"] for model in ollama.list()["models"] if "bert" not in model.details.families]
+        return llm_models
     elif platform_type == "xinference":
         from xinference_client import Client
         client = Client()
-        models = client.list_models()
-        return models
+        llm_models = client.list_models()
+        return llm_models
+
+def get_embedding_models(platform_type: Literal[tuple(PLATFORMS)]):
+    if platform_type == "ollama":
+        import ollama
+        embedding_models = [model["model"] for model in ollama.list()["models"] if "bert" in model.details.families]
+        return embedding_models
+    elif platform_type == "xinference":
+        from xinference_client import Client
+        client = Client()
+        embedding_models = client.list_models()
+        return embedding_models
 
 
 def get_chatllm(
@@ -63,3 +74,23 @@ def show_graph(graph):
                    flow_state,
                    layout=TreeLayout(direction='down'), fit_view=True
     )
+
+
+def get_kb_names():
+    kb_root = os.path.join(os.path.dirname(__file__), "kb")
+    kb_names = [f for f in os.listdir(kb_root) if os.path.isdir(os.path.join(kb_root, f))]
+    return kb_names
+
+def get_embedding_model(
+        platform_type: Literal[tuple(PLATFORMS)] = "ollama",
+        model: str = "quentinz/bge-large-zh-v1.5:latest",
+):
+    if platform_type == "ollama":
+        # from langchain_ollama import ChatOllama
+        # return ChatOllama
+        from langchain_ollama import OllamaEmbeddings
+        return OllamaEmbeddings(model=model)
+    elif platform_type == "xinference":
+        from langchain_community.llms import Xinference
+        return Xinference
+
