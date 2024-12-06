@@ -12,7 +12,9 @@ def display_chat_history():
             st.write(message["content"])
 
 def clear_chat_history():
-    st.session_state["chat_history"] = []
+    st.session_state["chat_history"] = [
+            {"role": "assistant", "content": "你好，我是你的 Chatchat 智能助手，当前页面为`对话模式`，可以直接与大模型对话，有什么可以帮助你的吗？"}
+        ]
 
 
 def chat_page():
