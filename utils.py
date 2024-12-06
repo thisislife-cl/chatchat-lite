@@ -80,6 +80,8 @@ def show_graph(graph):
 
 def get_kb_names():
     kb_root = os.path.join(os.path.dirname(__file__), "kb")
+    if not os.path.exists(kb_root):
+        os.mkdir(kb_root)
     kb_names = [f for f in os.listdir(kb_root) if os.path.isdir(os.path.join(kb_root, f))]
     return kb_names
 
