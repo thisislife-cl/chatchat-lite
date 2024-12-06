@@ -1,5 +1,6 @@
 from langchain_core.tools import tool
 import requests
+import datetime
 
 @tool
 def weather_search_tool(city: str):
@@ -11,14 +12,17 @@ def weather_search_tool(city: str):
     response = requests.get(
         f"https://geocoding-api.open-meteo.com/v1/search?name={city}&count=10&language=en&format=json")
     if response.status_code != 200:
-        return "Error: could not retrieve weather data"
+        return "Error: could not retrieve location of the city"
     else:
         lat, lon = response.json()["results"][0]["latitude"], response.json()["results"][0]["longitude"]
-        response = requests.get(f"https://api.open-meteo.com/v1/forecast?latitude={lat}&longitude={lon}&hourly=temperature_2m")
+        response = requests.get(f"https://api.open-meteo.com/v1/forecast?latitude={lat}&longitude={lon}"
+                                "&daily=temperature_2m_max,temperature_2m_min&timezone=Asia%2FSingapore")
         if response.status_code != 200:
             return "Error: could not retrieve weather data"
         else:
-            return response.json()
+            result = response.json()
+            result["time_of_now"] = f"{datetime.datetime.now()}"
+            return result
 
 if __name__ == "__main__":
     print(weather_search_tool.invoke("London"))

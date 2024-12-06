@@ -35,7 +35,7 @@ def chat_page():
             platform = st.selectbox("请选择要使用的模型加载方式", PLATFORMS)
             llm_models = get_llm_models(platform)
             model = st.selectbox("请选择要使用的模型", llm_models)
-            temperature = st.slider("请选择历史消息长度", 0.1, 1., 0.1)
+            temperature = st.slider("请选择模型 Temperature", 0.1, 1., 0.1)
             history_len = st.slider("请选择历史消息长度", 1, 10, 5)
         input = cols[1].chat_input("请输入您的问题")
         cols[2].button(":wastebasket:", help="清空对话", on_click=clear_chat_history)
