@@ -11,13 +11,13 @@ from tools import get_naive_rag_tool
 def should_continue(state: MessagesState) -> Literal["tools", END]:
     messages = state['messages']
     last_message = messages[-1]
-    print(last_message)
+    # print(last_message)
     if last_message.tool_calls:
         return "tools"
     return END
 
 
-def get_rag_graph(platform, model, temperature, selected_kbs):
+def get_rag_graph(platform, model, temperature, selected_kbs, KBS):
     tools = [KBS[k] for k in selected_kbs]
     tool_node = ToolNode(tools)
 
@@ -64,8 +64,8 @@ def graph_response(graph, input):
                 s.update(label="已完成知识库检索！", expanded=False)
 
 
-def get_rag_chat_response(platform, model, temperature, input, selected_tools):
-    app = get_rag_graph(platform, model, temperature, selected_tools)
+def get_rag_chat_response(platform, model, temperature, input, selected_tools, KBS):
+    app = get_rag_graph(platform, model, temperature, selected_tools, KBS)
     return graph_response(graph=app, input=input)
 
 def display_chat_history():
@@ -112,7 +112,8 @@ def rag_chat_page():
             model,
             temperature,
             st.session_state["rag_chat_history"][-history_len:],
-            selected_kbs
+            selected_kbs,
+            KBS
         )
 
         with st.chat_message("assistant", avatar=get_img_base64("chatchat_avatar.png")):

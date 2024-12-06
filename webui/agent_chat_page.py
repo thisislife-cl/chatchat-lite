@@ -12,13 +12,13 @@ from tools import weather_search_tool, get_naive_rag_tool, get_duckduckgo_search
 def should_continue(state: MessagesState) -> Literal["tools", END]:
     messages = state['messages']
     last_message = messages[-1]
-    print(last_message)
+    # print(last_message)
     if last_message.tool_calls:
         return "tools"
     return END
 
 
-def get_agent_graph(platform, model, temperature, selected_tools):
+def get_agent_graph(platform, model, temperature, selected_tools, TOOLS):
     tools = [TOOLS[k] for k in selected_tools]
     tool_node = ToolNode(tools)
 
@@ -63,8 +63,8 @@ def graph_response(graph, input):
                 s.update(label="已完成工具调用！", expanded=False)
 
 
-def get_agent_chat_response(platform, model, temperature, input, selected_tools):
-    app = get_agent_graph(platform, model, temperature, selected_tools)
+def get_agent_chat_response(platform, model, temperature, input, selected_tools, TOOLS):
+    app = get_agent_graph(platform, model, temperature, selected_tools, TOOLS)
     return graph_response(graph=app, input=input)
 
 
@@ -108,13 +108,14 @@ def agent_chat_page():
             st.write(input)
         st.session_state["agent_chat_history"] += [{"role": 'user', "content": input}]
 
-        print(st.session_state["agent_chat_history"][-history_len:])
+        # print(st.session_state["agent_chat_history"][-history_len:])
         stream_response = get_agent_chat_response(
             platform,
             model,
             temperature,
             st.session_state["agent_chat_history"][-history_len:],
-            selected_tools
+            selected_tools,
+            TOOLS
         )
 
         with st.chat_message("assistant", avatar=get_img_base64("chatchat_avatar.png")):
