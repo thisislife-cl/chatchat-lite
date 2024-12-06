@@ -11,3 +11,4 @@ langchain-text-splitters
 bs4
 streamlit-flow-component
 langchain-ollama
+langchain-chroma

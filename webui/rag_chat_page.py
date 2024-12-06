@@ -57,13 +57,15 @@ def graph_response(graph, input):
             yield event[0].content
         elif type(event[0]) == ToolMessage:
             status_placeholder = st.empty()
-            with status_placeholder.status("Calling Tool...", expanded=True) as s:
-                st.write("Called `", event[0].name, "` Tool")  # Show which tool is being called
+            with status_placeholder.status("正在查询...", expanded=True) as s:
+                st.write("已调用 `", event[0].name.replace("_knowledge_base_tool", ""), "` 知识库进行查询")  # Show which tool is being called
                 # st.write("Tool input: ")
                 # st.code(event['data'].get('input'))  # Display the input data sent to the tool
-                st.write("Tool output: ")
-                st.code(event[0].content) # Placeholder for tool output that will be updated later below
-                s.update(label="Completed Calling Tool!", expanded=False)
+                st.write("知识库检索结果：")
+                for cnum, content in enumerate(event[0].content.split("\n\n")):
+                    st.write(f"- 已知信息 {cnum+1}:")
+                    st.code(content, wrap_lines=True) # Placeholder for tool output that will be updated later below
+                s.update(label="已完成知识库检索！", expanded=False)
 
 
 def get_rag_chat_response(platform, model, temperature, input, selected_tools):
