@@ -1,5 +1,5 @@
 import streamlit as st
-from utils import PLATFORMS, get_llm_models, get_chatllm, get_embedding_model
+from utils import PLATFORMS, get_llm_models, get_chatllm, get_img_base64
 
 def get_chat_response(platform, model, temperature, input):
     llm = get_chatllm(platform, model, temperature=temperature)
@@ -8,7 +8,7 @@ def get_chat_response(platform, model, temperature, input):
 
 def display_chat_history():
     for message in st.session_state["chat_history"]:
-        with st.chat_message(message[0]):
+        with st.chat_message(message[0], avatar=get_img_base64("chatchat_avatar.png") if message[0] == "assistant" else None):
             st.write(message[1])
 
 def clear_chat_history():
@@ -47,6 +47,6 @@ def chat_page():
             st.session_state["chat_history"][-history_len:]
         )
 
-        with st.chat_message("assistant"):
+        with st.chat_message("assistant", avatar=get_img_base64("chatchat_avatar.png")):
             response = st.write_stream(stream_response)
         st.session_state["chat_history"] += [('assistant', response)]

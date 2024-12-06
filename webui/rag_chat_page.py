@@ -1,5 +1,5 @@
 import streamlit as st
-from utils import PLATFORMS, get_llm_models, get_chatllm, get_kb_names
+from utils import PLATFORMS, get_llm_models, get_chatllm, get_kb_names, get_img_base64
 from langchain_core.messages import AIMessageChunk, ToolMessage
 from langgraph.checkpoint.memory import MemorySaver
 from langgraph.graph import END, START, StateGraph, MessagesState
@@ -72,7 +72,7 @@ def get_rag_chat_response(platform, model, temperature, input, selected_tools):
 
 def display_chat_history():
     for message in st.session_state["rag_chat_history"]:
-        with st.chat_message(message["role"]):
+        with st.chat_message(message["role"], avatar=get_img_base64("chatchat_avatar.png") if message["role"] == "assistant" else None):
             st.write(message["content"])
 
 def clear_chat_history():
@@ -110,6 +110,6 @@ def rag_chat_page():
             selected_kbs
         )
 
-        with st.chat_message("assistant"):
+        with st.chat_message("assistant", avatar=get_img_base64("chatchat_avatar.png")):
             response = st.write_stream(stream_response)
         st.session_state["rag_chat_history"] += [{"role": 'assistant', "content": response}]
