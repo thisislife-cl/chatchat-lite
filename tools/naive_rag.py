@@ -5,7 +5,6 @@ import os
 
 def naive_rag(vectorstore_name):
     # Add to vectorDB
-    print(os.path.join(os.path.dirname(os.path.dirname(__file__)), vectorstore_name, "vectorstore"))
     vectorstore = Chroma(
         collection_name=vectorstore_name,
         embedding_function=OllamaEmbeddings(model="quentinz/bge-large-zh-v1.5:latest"),

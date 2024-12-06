@@ -10,7 +10,6 @@ conda create -n chatchat-lite python=3.10 -y
 conda activate chatchat-lite
 ```
 
-
 ## 安装依赖
 ```commandline
 pip install -r requirements.txt
@@ -25,6 +24,7 @@ ollama run quentinz/bge-large-zh-v1.5
 ```
 
 ## 运行项目
+使用以下命令行运行webui
 ```commandline
 streamlit run st_main.py --theme.primaryColor "#165dff"
 ```
@@ -32,3 +32,7 @@ streamlit run st_main.py --theme.primaryColor "#165dff"
 ```commandline
 streamlit run st_main.py --theme.base "dark" --theme.primaryColor "#165dff"
 ```
+
+启动后界面如下：
+![webui.png](img/webui.png)
+![webui2.png](img/webui2.png)
