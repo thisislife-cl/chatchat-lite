@@ -34,5 +34,8 @@ streamlit run st_main.py --theme.base "dark" --theme.primaryColor "#165dff"
 ```
 
 启动后界面如下：
-![webui.png](img/webui.png)
-![webui2.png](img/webui2.png)
+- Agent 对话界面
+    ![webui.png](img/webui.png)
+
+- 模型配置界面
+    ![webui2.png](img/webui2.png)
