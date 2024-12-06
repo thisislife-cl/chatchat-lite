@@ -7,11 +7,7 @@ from langgraph.graph import END, START, StateGraph, MessagesState
 from langgraph.prebuilt import ToolNode
 from tools import weather_search_tool, get_naive_rag_tool, get_duckduckgo_search_tool
 
-kbs = get_kb_names()
-duckduckgo_search_tool = get_duckduckgo_search_tool()
-TOOLS = {"天气查询": weather_search_tool, "Duckduckgo 搜索": duckduckgo_search_tool}
-for k in kbs:
-    TOOLS[f"{k} 知识库"] = get_naive_rag_tool(k)
+
 
 def should_continue(state: MessagesState) -> Literal["tools", END]:
     messages = state['messages']
@@ -82,6 +78,12 @@ def clear_chat_history():
 
 
 def agent_chat_page():
+    kbs = get_kb_names()
+    duckduckgo_search_tool = get_duckduckgo_search_tool()
+    TOOLS = {"天气查询": weather_search_tool, "Duckduckgo 搜索": duckduckgo_search_tool}
+    for k in kbs:
+        TOOLS[f"{k} 知识库"] = get_naive_rag_tool(k)
+
     if "agent_chat_history" not in st.session_state:
         st.session_state["agent_chat_history"] = [
             {"role": "assistant", "content": "你好，我是你的 Chatchat 智能助手，当前页面为`Agent 对话模式`，可以在对话让大模型借助左侧所选工具进行回答，有什么可以帮助你的吗？"}

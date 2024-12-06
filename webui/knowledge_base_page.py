@@ -73,7 +73,7 @@ def knowledge_base_page():
             from langchain_community.document_loaders import DirectoryLoader, TextLoader
             loader = DirectoryLoader(
                 file_storage_path,
-                glob="**/*.md",
+                glob=[f"**/{file.name}" for file in files],
                 show_progress=True,
                 use_multithreading=True,
                 loader_cls=TextLoader
