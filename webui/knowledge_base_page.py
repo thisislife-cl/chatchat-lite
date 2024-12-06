@@ -71,12 +71,14 @@ def knowledge_base_page():
                     f.write(b)
 
             from langchain_community.document_loaders import DirectoryLoader, TextLoader
+            text_loader_kwargs = {"autodetect_encoding": True}
             loader = DirectoryLoader(
                 file_storage_path,
                 glob=[f"**/{file.name}" for file in files],
                 show_progress=True,
                 use_multithreading=True,
-                loader_cls=TextLoader
+                loader_cls=TextLoader,
+                loader_kwargs=text_loader_kwargs,
             )
             docs_list = loader.load()
 
