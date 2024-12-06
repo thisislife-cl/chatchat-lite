@@ -1,2 +1,3 @@
-from tools.weather_search import weather_search
-from tools.naive_rag import naive_rag
+from tools.weather_search_tool import weather_search_tool
+from tools.naive_rag_tool import get_naive_rag_tool
+from tools.duckduckgo_search_tool import get_duckduckgo_search_tool

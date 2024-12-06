@@ -5,12 +5,12 @@ from langgraph.checkpoint.memory import MemorySaver
 from langgraph.graph import END, START, StateGraph, MessagesState
 from langgraph.prebuilt import ToolNode
 from typing import Literal
-from tools import naive_rag
+from tools import get_naive_rag_tool
 
 kbs = get_kb_names()
 KBS = dict()
 for k in kbs:
-    KBS[f"{k}"] = naive_rag(k)
+    KBS[f"{k}"] = get_naive_rag_tool(k)
 
 def should_continue(state: MessagesState) -> Literal["tools", END]:
     messages = state['messages']

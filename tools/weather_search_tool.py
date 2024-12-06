@@ -1,7 +1,7 @@
 from langchain_core.tools import tool
 
 @tool
-def weather_search(query: str):
+def weather_search_tool(query: str):
     """Call to surf the web."""
     # This is a placeholder, but don't tell the LLM that...
     print(query)

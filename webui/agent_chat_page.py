@@ -5,12 +5,13 @@ from langchain_core.messages import AIMessageChunk, ToolMessage
 from langgraph.checkpoint.memory import MemorySaver
 from langgraph.graph import END, START, StateGraph, MessagesState
 from langgraph.prebuilt import ToolNode
-from tools import weather_search, naive_rag
+from tools import weather_search_tool, get_naive_rag_tool, get_duckduckgo_search_tool
 
 kbs = get_kb_names()
-TOOLS = {"天气查询": weather_search}
+duckduckgo_search_tool = get_duckduckgo_search_tool()
+TOOLS = {"天气查询": weather_search_tool, "Duckduckgo 搜索": duckduckgo_search_tool}
 for k in kbs:
-    TOOLS[f"{k} 知识库"] = naive_rag(k)
+    TOOLS[f"{k} 知识库"] = get_naive_rag_tool(k)
 
 def should_continue(state: MessagesState) -> Literal["tools", END]:
     messages = state['messages']

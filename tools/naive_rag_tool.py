@@ -3,7 +3,7 @@ from langchain_ollama import OllamaEmbeddings
 from langchain.tools.retriever import create_retriever_tool
 import os
 
-def naive_rag(vectorstore_name):
+def get_naive_rag_tool(vectorstore_name):
     # Add to vectorDB
     vectorstore = Chroma(
         collection_name=vectorstore_name,
