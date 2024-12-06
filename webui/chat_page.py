@@ -8,8 +8,8 @@ def get_chat_response(platform, model, temperature, input):
 
 def display_chat_history():
     for message in st.session_state["chat_history"]:
-        with st.chat_message(message[0], avatar=get_img_base64("chatchat_avatar.png") if message[0] == "assistant" else None):
-            st.write(message[1])
+        with st.chat_message(message["role"], avatar=get_img_base64("chatchat_avatar.png") if message["role"] == "assistant" else None):
+            st.write(message["content"])
 
 def clear_chat_history():
     st.session_state["chat_history"] = []
@@ -17,7 +17,9 @@ def clear_chat_history():
 
 def chat_page():
     if "chat_history" not in st.session_state:
-        st.session_state["chat_history"] = []
+        st.session_state["chat_history"] = [
+            {"role": "assistant", "content": "你好，我是你的 Chatchat 智能助手，当前页面为`对话模式`，可以直接与大模型对话，有什么可以帮助你的吗？"}
+        ]
 
     with st.sidebar:
         st.title("Chatbot")
@@ -38,7 +40,7 @@ def chat_page():
     if input:
         with st.chat_message("user"):
             st.write(input)
-        st.session_state["chat_history"] += [('user', input)]
+        st.session_state["chat_history"] += [{'role': 'user', 'content': input}]
 
         stream_response = get_chat_response(
             platform,
@@ -49,4 +51,4 @@ def chat_page():
 
         with st.chat_message("assistant", avatar=get_img_base64("chatchat_avatar.png")):
             response = st.write_stream(stream_response)
-        st.session_state["chat_history"] += [('assistant', response)]
+        st.session_state["chat_history"] += [{'role': 'assistant', 'content': response}]

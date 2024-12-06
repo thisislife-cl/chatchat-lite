@@ -28,3 +28,7 @@ ollama run quentinz/bge-large-zh-v1.5
 ```commandline
 streamlit run st_main.py --theme.primaryColor "#165dff"
 ```
+或使用暗色模式启动：
+```commandline
+streamlit run st_main.py --theme.base "dark" --theme.primaryColor "#165dff"
+```

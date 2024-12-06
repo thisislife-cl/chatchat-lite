@@ -82,7 +82,9 @@ def clear_chat_history():
 
 def agent_chat_page():
     if "agent_chat_history" not in st.session_state:
-        st.session_state["agent_chat_history"] = []
+        st.session_state["agent_chat_history"] = [
+            {"role": "assistant", "content": "你好，我是你的 Chatchat 智能助手，当前页面为`Agent 对话模式`，可以在对话让大模型借助左侧所选工具进行回答，有什么可以帮助你的吗？"}
+        ]
 
     with st.sidebar:
         selected_tools = st.multiselect("请选择对话中可使用的工具", list(TOOLS.keys()), default=list(TOOLS.keys()))

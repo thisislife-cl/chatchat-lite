@@ -81,7 +81,9 @@ def clear_chat_history():
 
 def rag_chat_page():
     if "rag_chat_history" not in st.session_state:
-        st.session_state["rag_chat_history"] = []
+        st.session_state["rag_chat_history"] = [
+            {"role": "assistant", "content": "你好，我是你的 Chatchat 智能助手，当前页面为`RAG 对话模式`，可以在对话让大模型基于左侧所选知识库进行回答，有什么可以帮助你的吗？"}
+        ]
 
     with st.sidebar:
         selected_kbs = st.multiselect("请选择对话中可使用的知识库", kbs, default=kbs)
