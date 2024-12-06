@@ -3,7 +3,7 @@ from webui import chat_page, rag_chat_page, agent_chat_page, knowledge_base_page
 
 if __name__ == "__main__":
     # with st.sidebar:
-    #     st.logo("img.png", size="large")
+    #     st.logo("chatchat_avatar.png", size="large")
     pg = st.navigation({
         "对话": [
             st.Page(chat_page, title="对话", icon=":material/chat_bubble:"),
