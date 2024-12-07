@@ -14,3 +14,4 @@ langchain-ollama
 langchain-chroma
 duckduckgo-search
 arxiv
+wikipedia

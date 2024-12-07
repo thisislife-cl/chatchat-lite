@@ -5,7 +5,7 @@ from langchain_core.messages import AIMessageChunk, ToolMessage
 from langgraph.checkpoint.memory import MemorySaver
 from langgraph.graph import END, START, StateGraph, MessagesState
 from langgraph.prebuilt import ToolNode
-from tools import weather_search_tool, get_naive_rag_tool, get_duckduckgo_search_tool, arxiv_search_tool
+from tools import weather_search_tool, get_naive_rag_tool, get_duckduckgo_search_tool, arxiv_search_tool, wikipedia_search_tool
 
 
 
@@ -82,7 +82,7 @@ def clear_chat_history():
 def agent_chat_page():
     kbs = get_kb_names()
     duckduckgo_search_tool = get_duckduckgo_search_tool()
-    TOOLS = {"天气查询": weather_search_tool, "Duckduckgo 搜索": duckduckgo_search_tool, "Arxiv 搜索": arxiv_search_tool}
+    TOOLS = {"天气查询": weather_search_tool, "Duckduckgo 搜索": duckduckgo_search_tool, "Arxiv 搜索": arxiv_search_tool, "Wikipedia 搜索": wikipedia_search_tool}
     for k in kbs:
         TOOLS[f"{k} 知识库"] = get_naive_rag_tool(k)
 
