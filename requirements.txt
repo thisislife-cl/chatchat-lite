@@ -13,3 +13,4 @@ streamlit-flow-component
 langchain-ollama
 langchain-chroma
 duckduckgo-search
+arxiv
