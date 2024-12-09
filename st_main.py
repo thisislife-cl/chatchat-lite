@@ -2,8 +2,13 @@ import streamlit as st
 from webui import chat_page, rag_chat_page, agent_chat_page, knowledge_base_page
 
 if __name__ == "__main__":
-    # with st.sidebar:
-    #     st.logo("chatchat_avatar.png", size="large")
+    with st.sidebar:
+        st.logo(
+            "img/chatchat_lite_logo.png",
+            size="large",
+            icon_image="img/chatchat_lite_small_logo.png"
+        )
+
     pg = st.navigation({
         "对话": [
             st.Page(chat_page, title="对话", icon=":material/chat_bubble:"),
