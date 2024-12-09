@@ -9,7 +9,7 @@ import base64
 from io import BytesIO
 
 
-PLATFORMS = ["xinference"] # ["ollama", "xinference", "fastchat", "openai"]
+PLATFORMS = ["ollama", "xinference"] # ["xinference", "fastchat", "openai"]
 
 
 def get_llm_models(platform_type: Literal[tuple(PLATFORMS)], base_url: str="", api_key: str="EMPTY"):
