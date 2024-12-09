@@ -2,7 +2,7 @@ import os
 
 import streamlit as st
 from utils import PLATFORMS, get_embedding_models, get_kb_names
-from langchain_community.vectorstores import Chroma
+from langchain_chroma import Chroma
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 
 from utils import get_embedding_model
