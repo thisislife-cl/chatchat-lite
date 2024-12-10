@@ -126,8 +126,8 @@ def get_kb_names():
     return kb_names
 
 def get_embedding_model(
-        platform_type: Literal[tuple(PLATFORMS)] = "ollama",
-        model: str = "quentinz/bge-large-zh-v1.5:latest",
+        platform_type: Literal[tuple(PLATFORMS)] = "Ollama",
+        model: str = "quentinz/bge-large-zh-v1.5",
         base_url: str = "",
         api_key: str = "EMPTY",
 ):
@@ -135,9 +135,9 @@ def get_embedding_model(
         # from langchain_ollama import ChatOllama
         # return ChatOllama
         if not base_url:
-            base_url = "http://127.0.0.1:11434/v1/"
+            base_url = "http://127.0.0.1:11434/"
         from langchain_ollama import OllamaEmbeddings
-        return OllamaEmbeddings(model=model)
+        return OllamaEmbeddings(base_url=base_url, model=model)
     elif platform_type == "Xinference":
         from langchain_community.embeddings.xinference import XinferenceEmbeddings
         if not base_url:
