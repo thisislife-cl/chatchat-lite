@@ -9,39 +9,38 @@ import base64
 from io import BytesIO
 
 
-PLATFORMS = ["ollama", "xinference"] # ["xinference", "fastchat", "openai"]
+PLATFORMS = ["Ollama", "Xinference"] # ["fastchat", "openai"]
 
 
 def get_llm_models(platform_type: Literal[tuple(PLATFORMS)], base_url: str="", api_key: str="EMPTY"):
-    if not base_url:
-        if platform_type == "ollama":
-            base_url = "http://127.0.0.1:11434/v1"
-        elif platform_type == "xinference":
-            base_url = "http://106.54.43.139:9997"
-
-    if platform_type == "ollama":
+    if platform_type == "Ollama":
         import ollama
-        llm_models = [model["model"] for model in ollama.list()["models"] if "bert" not in model.details.families]
+        if not base_url:
+            base_url = "http://127.0.0.1:11434"
+        client = ollama.Client(host=base_url)
+        llm_models = [model["model"] for model in client.list()["models"] if "bert" not in model.details.families]
         return llm_models
-    elif platform_type == "xinference":
+    elif platform_type == "Xinference":
         from xinference_client import RESTfulClient as Client
+        if not base_url:
+            base_url = "http://127.0.0.1:9997"
         client = Client(base_url=base_url)
         llm_models = client.list_models()
         return {k:v for k,v in llm_models.items() if v.get("model_type") == "LLM"}
 
-def get_embedding_models(platform_type: Literal[tuple(PLATFORMS)], base_url: str="", api_key: str="EMPTY"):
-    if not base_url:
-        if platform_type == "ollama":
-            base_url = "http://127.0.0.1:11434/v1"
-        elif platform_type == "xinference":
-            base_url = "http://106.54.43.139:9997"
 
-    if platform_type == "ollama":
+def get_embedding_models(platform_type: Literal[tuple(PLATFORMS)], base_url: str="", api_key: str="EMPTY"):
+    if platform_type == "Ollama":
         import ollama
-        embedding_models = [model["model"] for model in ollama.list()["models"] if "bert" in model.details.families]
+        if not base_url:
+            base_url = "http://127.0.0.1:11434"
+        client = ollama.Client(host=base_url)
+        embedding_models = [model["model"] for model in client.list()["models"] if "bert" in model.details.families]
         return embedding_models
-    elif platform_type == "xinference":
+    elif platform_type == "Xinference":
         from xinference_client import RESTfulClient as Client
+        if not base_url:
+            base_url = "http://127.0.0.1:9997"
         client = Client(base_url=base_url)
         embedding_models = client.list_models()
         return {k:v for k,v in embedding_models.items() if v.get("model_type") == "embedding"}
@@ -51,14 +50,20 @@ def get_chatllm(
         platform_type: Literal[tuple(PLATFORMS)],
         model: str,
         base_url: str = "",
-        api_key: str = "EMPTY",
-        temperature: float = 0.9
+        api_key: str = "",
+        temperature: float = 0.1
 ):
-    if not base_url:
-        if platform_type == "ollama":
+    if platform_type == "Ollama":
+        if not base_url:
             base_url = "http://127.0.0.1:11434/v1"
-        elif platform_type == "xinference":
-            base_url = "http://106.54.43.139:9997/v1"
+        if not api_key:
+            api_key = "ollama"
+    elif platform_type == "Xinference":
+        if not base_url:
+            base_url = "http://127.0.0.1:9997/v1"
+        if not api_key:
+            api_key = "EMPTY"
+
     return ChatOpenAI(
         temperature=temperature,
         model_name=model,
@@ -126,19 +131,17 @@ def get_embedding_model(
         base_url: str = "",
         api_key: str = "EMPTY",
 ):
-    if not base_url:
-        if platform_type == "ollama":
-            base_url = "http://127.0.0.1:11434/v1"
-        elif platform_type == "xinference":
-            base_url = "http://106.54.43.139:9997/v1"
-
-    if platform_type == "ollama":
+    if platform_type == "Ollama":
         # from langchain_ollama import ChatOllama
         # return ChatOllama
+        if not base_url:
+            base_url = "http://127.0.0.1:11434/v1/"
         from langchain_ollama import OllamaEmbeddings
         return OllamaEmbeddings(model=model)
-    elif platform_type == "xinference":
+    elif platform_type == "Xinference":
         from langchain_community.embeddings.xinference import XinferenceEmbeddings
+        if not base_url:
+            base_url = "http://127.0.0.1:9997/v1"
         return XinferenceEmbeddings(server_url=base_url, model_uid=model)
     else:
         from langchain_openai import OpenAIEmbeddings
@@ -158,4 +161,4 @@ def get_img_base64(file_name: str) -> str:
     return f"data:image/png;base64,{base_str}"
 
 if __name__ == "__main__":
-    get_img_base64("chatchat_avatar.png")
+    print(get_embedding_model(platform_type="Ollama"))
