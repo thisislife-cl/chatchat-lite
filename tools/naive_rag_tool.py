@@ -21,4 +21,6 @@ def get_naive_rag_tool(vectorstore_name):
         f"{vectorstore_name}_knowledge_base_tool",
         f"search and return information about {vectorstore_name}",
     )
+    retriever_tool.response_format = "content"
+    retriever_tool.func = lambda query: {f"已知内容 {inum+1}": doc.page_content for inum, doc in enumerate(retriever.invoke(query))}
     return retriever_tool

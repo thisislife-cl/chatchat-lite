@@ -6,6 +6,7 @@ from langgraph.graph import END, START, StateGraph, MessagesState
 from langgraph.prebuilt import ToolNode
 from typing import Literal
 from tools import get_naive_rag_tool
+import json
 
 
 def should_continue(state: MessagesState) -> Literal["tools", END]:
@@ -58,8 +59,9 @@ def graph_response(graph, input):
                 # st.write("Tool input: ")
                 # st.code(event['data'].get('input'))  # Display the input data sent to the tool
                 st.write("知识库检索结果：")
-                for cnum, content in enumerate(event[0].content.split("\n\n")):
-                    st.write(f"- 已知信息 {cnum+1}:")
+                # st.write(event[0])
+                for k, content in json.loads(event[0].content).items():
+                    st.write(f"- {k}:")
                     st.code(content, wrap_lines=True) # Placeholder for tool output that will be updated later below
                 s.update(label="已完成知识库检索！", expanded=False)
 
