@@ -27,6 +27,7 @@ def daily_ai_papers_tool(query:str, top_k: int = 5):
             "status": "成功获取今日人工智能相关论文"
             if str(datetime.date.today()) == last_updated
             else f"暂无今日人工智能相关论文, 已获取到 {last_updated} 的论文",
+            "date_of_today": str(datetime.date.today())
         }
         return result
 
