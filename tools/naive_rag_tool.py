@@ -14,7 +14,13 @@ def get_naive_rag_tool(vectorstore_name):
         persist_directory=os.path.join(os.path.dirname(os.path.dirname(__file__)), "kb", vectorstore_name, "vectorstore"),
     )
 
-    retriever = vectorstore.as_retriever()
+    retriever = vectorstore.as_retriever(
+        search_type="similarity",
+        search_kwargs={
+            "k": 5,
+            "score_threshold": 0.5,
+        }
+    )
 
     retriever_tool = create_retriever_tool(
         retriever,
