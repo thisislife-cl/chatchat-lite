@@ -10,7 +10,7 @@ def get_naive_rag_tool(vectorstore_name):
     # Add to vectorDB
     vectorstore = Chroma(
         collection_name=vectorstore_name,
-        embedding_function=get_embedding_model(model="quentinz/bge-large-zh-v1.5:latest"),
+        embedding_function=get_embedding_model(platform_type="Ollama", model="quentinz/bge-large-zh-v1.5:latest"),
         persist_directory=os.path.join(os.path.dirname(os.path.dirname(__file__)), "kb", vectorstore_name, "vectorstore"),
     )
 
@@ -34,4 +34,4 @@ def get_naive_rag_tool(vectorstore_name):
 
 if __name__ == "__main__":
     retriever_tool = get_naive_rag_tool("person_info")
-    print(retriever_tool("你好"))
+    print(retriever_tool.invoke("你好"))
