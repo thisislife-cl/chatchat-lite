@@ -63,7 +63,7 @@ def graph_response(graph, input):
                     st.write(f"- {k}:")
                     st.code(content, wrap_lines=True) # Placeholder for tool output that will be updated later below
                 s.update(label="已完成知识库检索！", expanded=False)
-                st.session_state["tool_calls"].append(
+                st.session_state["rag_tool_calls"].append(
                     {
                         "status": "已完成知识库检索！",
                         "knowledge_base": event[0].name.replace("_knowledge_base_tool", ""),
@@ -97,7 +97,7 @@ def clear_chat_history():
     st.session_state["rag_chat_history_with_tool_call"] = [
             {"role": "assistant", "content": "你好，我是你的 Chatchat 智能助手，当前页面为`RAG 对话模式`，可以在对话让大模型基于左侧所选知识库进行回答，有什么可以帮助你的吗？"}
         ]
-    st.session_state["tool_calls"] = []
+    st.session_state["rag_tool_calls"] = []
 
 
 def rag_chat_page():
@@ -114,8 +114,8 @@ def rag_chat_page():
         st.session_state["rag_chat_history_with_tool_call"] = [
             {"role": "assistant", "content": "你好，我是你的 Chatchat 智能助手，当前页面为`RAG 对话模式`，可以在对话让大模型基于左侧所选知识库进行回答，有什么可以帮助你的吗？"}
         ]
-    if "tool_calls" not in st.session_state:
-        st.session_state["tool_calls"] = []
+    if "rag_tool_calls" not in st.session_state:
+        st.session_state["rag_tool_calls"] = []
 
 
     with st.sidebar:
@@ -150,5 +150,5 @@ def rag_chat_page():
         with st.chat_message("assistant", avatar=get_img_base64("chatchat_avatar.png")):
             response = st.write_stream(stream_response)
         st.session_state["rag_chat_history"] += [{"role": 'assistant', "content": response}]
-        st.session_state["rag_chat_history_with_tool_call"] += [{"role": 'assistant', "content": response, "tool_calls": st.session_state["tool_calls"]}]
-        st.session_state["tool_calls"] = []
+        st.session_state["rag_chat_history_with_tool_call"] += [{"role": 'assistant', "content": response, "tool_calls": st.session_state["rag_tool_calls"]}]
+        st.session_state["rag_tool_calls"] = []

@@ -68,6 +68,12 @@ def graph_response(graph, input):
                 st.write("工具输出：")
                 st.code(event[0].content, wrap_lines=True) # Placeholder for tool output that will be updated later below
                 s.update(label="已完成工具调用！", expanded=False)
+            st.session_state["agent_tool_calls"].append(
+                {
+                    "status": "已完成工具调用！",
+                    "tool": event[0].name,
+                    "content": event[0].content
+                })
 
 
 def get_agent_chat_response(platform, model, temperature, input, selected_tools, TOOLS):
@@ -76,14 +82,25 @@ def get_agent_chat_response(platform, model, temperature, input, selected_tools,
 
 
 def display_chat_history():
-    for message in st.session_state["agent_chat_history"]:
+    for message in st.session_state["agent_chat_history_with_tool_call"]:
         with st.chat_message(message["role"], avatar=get_img_base64("chatchat_avatar.png") if message["role"] == "assistant" else None):
+            if "tool_calls" in message.keys():
+                for tool_call in message["tool_calls"]:
+                    with st.status(tool_call["status"], expanded=False):
+                        st.write("已调用 `", tool_call["tool"], "` 工具")
+                        st.write("工具输出：")
+                        st.code(tool_call["content"], wrap_lines=True)  # Placeholder for tool output that will be updated later below
+
             st.write(message["content"])
 
 def clear_chat_history():
     st.session_state["agent_chat_history"] = [
             {"role": "assistant", "content": "你好，我是你的 Chatchat 智能助手，当前页面为`Agent 对话模式`，可以在对话让大模型借助左侧所选工具进行回答，有什么可以帮助你的吗？"}
         ]
+    st.session_state["agent_chat_history_with_tool_call"] = [
+        {"role": "assistant", "content": "你好，我是你的 Chatchat 智能助手，当前页面为`Agent 对话模式`，可以在对话让大模型借助左侧所选工具进行回答，有什么可以帮助你的吗？"}
+    ]
+    st.session_state["agent_tool_calls"] = []
 
 
 def agent_chat_page():
@@ -103,6 +120,12 @@ def agent_chat_page():
         st.session_state["agent_chat_history"] = [
             {"role": "assistant", "content": "你好，我是你的 Chatchat 智能助手，当前页面为`Agent 对话模式`，可以在对话让大模型借助左侧所选工具进行回答，有什么可以帮助你的吗？"}
         ]
+    if "agent_chat_history_with_tool_call" not in st.session_state:
+        st.session_state["agent_chat_history_with_tool_call"] = [
+            {"role": "assistant", "content": "你好，我是你的 Chatchat 智能助手，当前页面为`Agent 对话模式`，可以在对话让大模型借助左侧所选工具进行回答，有什么可以帮助你的吗？"}
+        ]
+    if "agent_tool_calls" not in st.session_state:
+        st.session_state["agent_tool_calls"] = []
 
     with st.sidebar:
         selected_tools = st.multiselect("请选择对话中可使用的工具", list(TOOLS.keys()), default=list(TOOLS.keys()))
@@ -122,6 +145,7 @@ def agent_chat_page():
         with st.chat_message("user"):
             st.write(input)
         st.session_state["agent_chat_history"] += [{"role": 'user', "content": input}]
+        st.session_state["agent_chat_history_with_tool_call"] += [{"role": 'user', "content": input}]
 
         # print(st.session_state["agent_chat_history"][-history_len:])
         stream_response = get_agent_chat_response(
@@ -136,4 +160,5 @@ def agent_chat_page():
         with st.chat_message("assistant", avatar=get_img_base64("chatchat_avatar.png")):
             response1 = st.write_stream(stream_response)
         st.session_state["agent_chat_history"] += [{"role": 'assistant', "content": response1}]
-
+        st.session_state["agent_chat_history_with_tool_call"] += [{"role": 'assistant', "content": response1, "tool_calls": st.session_state["agent_tool_calls"]}]
+        st.session_state["agent_tool_calls"] = []
