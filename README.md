@@ -20,7 +20,7 @@ pip install -r requirements.txt
 请前往 [Ollama官网](https://ollama.com/download) 下载最新版 Ollama， 安装完成后再命令行中执行以下命令：
 ```commandline
 ollama run qwen2.5
-ollama run quentinz/bge-large-zh-v1.5
+ollama pull quentinz/bge-large-zh-v1.5
 ```
 
 ## 运行项目
