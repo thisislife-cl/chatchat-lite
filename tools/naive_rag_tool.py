@@ -18,7 +18,7 @@ def get_naive_rag_tool(vectorstore_name):
         search_type="similarity",
         search_kwargs={
             "k": 5,
-            "score_threshold": 0.5,
+            # "score_threshold": 1.1,
         }
     )
 
@@ -30,3 +30,8 @@ def get_naive_rag_tool(vectorstore_name):
     retriever_tool.response_format = "content"
     retriever_tool.func = lambda query: {f"已知内容 {inum+1}": doc.page_content for inum, doc in enumerate(retriever.invoke(query))}
     return retriever_tool
+
+
+if __name__ == "__main__":
+    retriever_tool = get_naive_rag_tool("person_info")
+    print(retriever_tool("你好"))
