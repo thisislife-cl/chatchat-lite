@@ -8,6 +8,8 @@ from typing import Literal
 from tools import get_naive_rag_tool
 import json
 
+RAG_PAGE_INTRODUCTION = "你好，我是你的 Chatchat 智能助手，当前页面为`RAG 对话模式`，可以在对话让大模型基于左侧所选知识库进行回答，有什么可以帮助你的吗？"
+
 
 def should_continue(state: MessagesState) -> Literal["tools", END]:
     messages = state['messages']
@@ -92,10 +94,10 @@ def display_chat_history():
 
 def clear_chat_history():
     st.session_state["rag_chat_history"] = [
-            {"role": "assistant", "content": "你好，我是你的 Chatchat 智能助手，当前页面为`RAG 对话模式`，可以在对话让大模型基于左侧所选知识库进行回答，有什么可以帮助你的吗？"}
+            {"role": "assistant", "content": RAG_PAGE_INTRODUCTION}
         ]
     st.session_state["rag_chat_history_with_tool_call"] = [
-            {"role": "assistant", "content": "你好，我是你的 Chatchat 智能助手，当前页面为`RAG 对话模式`，可以在对话让大模型基于左侧所选知识库进行回答，有什么可以帮助你的吗？"}
+            {"role": "assistant", "content": RAG_PAGE_INTRODUCTION}
         ]
     st.session_state["rag_tool_calls"] = []
 
@@ -108,11 +110,11 @@ def rag_chat_page():
 
     if "rag_chat_history" not in st.session_state:
         st.session_state["rag_chat_history"] = [
-            {"role": "assistant", "content": "你好，我是你的 Chatchat 智能助手，当前页面为`RAG 对话模式`，可以在对话让大模型基于左侧所选知识库进行回答，有什么可以帮助你的吗？"}
+            {"role": "assistant", "content": RAG_PAGE_INTRODUCTION}
         ]
     if "rag_chat_history_with_tool_call" not in st.session_state:
         st.session_state["rag_chat_history_with_tool_call"] = [
-            {"role": "assistant", "content": "你好，我是你的 Chatchat 智能助手，当前页面为`RAG 对话模式`，可以在对话让大模型基于左侧所选知识库进行回答，有什么可以帮助你的吗？"}
+            {"role": "assistant", "content": RAG_PAGE_INTRODUCTION}
         ]
     if "rag_tool_calls" not in st.session_state:
         st.session_state["rag_tool_calls"] = []

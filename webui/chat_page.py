@@ -1,6 +1,8 @@
 import streamlit as st
 from utils import PLATFORMS, get_llm_models, get_chatllm, get_img_base64
 
+CHAT_PAGE_INTRODUCTION = "你好，我是你的 Chatchat 智能助手，当前页面为`对话模式`，可以直接与大模型对话，有什么可以帮助你的吗？"
+
 def get_chat_response(platform, model, temperature, input):
     llm = get_chatllm(platform, model, temperature=temperature)
     for chunk in llm.stream(input):
@@ -13,14 +15,14 @@ def display_chat_history():
 
 def clear_chat_history():
     st.session_state["chat_history"] = [
-            {"role": "assistant", "content": "你好，我是你的 Chatchat 智能助手，当前页面为`对话模式`，可以直接与大模型对话，有什么可以帮助你的吗？"}
+            {"role": "assistant", "content": CHAT_PAGE_INTRODUCTION}
         ]
 
 
 def chat_page():
     if "chat_history" not in st.session_state:
         st.session_state["chat_history"] = [
-            {"role": "assistant", "content": "你好，我是你的 Chatchat 智能助手，当前页面为`对话模式`，可以直接与大模型对话，有什么可以帮助你的吗？"}
+            {"role": "assistant", "content": CHAT_PAGE_INTRODUCTION}
         ]
 
     with st.sidebar:
