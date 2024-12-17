@@ -1,5 +1,6 @@
 import os
 from typing import Literal
+from langchain_openai import ChatOpenAI
 from langchain_ollama import ChatOllama
 from streamlit_flow import streamlit_flow
 from streamlit_flow.elements import StreamlitFlowNode, StreamlitFlowEdge
