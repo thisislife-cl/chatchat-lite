@@ -2,22 +2,12 @@ import streamlit as st
 from utils import PLATFORMS, get_llm_models, get_chatllm, get_kb_names, get_img_base64
 from langchain_core.messages import AIMessageChunk, ToolMessage
 from langgraph.checkpoint.memory import MemorySaver
-from langgraph.graph import END, START, StateGraph, MessagesState
-from langgraph.prebuilt import ToolNode
-from typing import Literal
+from langgraph.graph import StateGraph, MessagesState
+from langgraph.prebuilt import ToolNode, tools_condition
 from tools import get_naive_rag_tool
 import json
 
 RAG_PAGE_INTRODUCTION = "你好，我是你的 Chatchat 智能助手，当前页面为`RAG 对话模式`，可以在对话让大模型基于左侧所选知识库进行回答，有什么可以帮助你的吗？"
-
-
-def should_continue(state: MessagesState) -> Literal["tools", END]:
-    messages = state['messages']
-    last_message = messages[-1]
-    # print(last_message)
-    if last_message.tool_calls:
-        return "tools"
-    return END
 
 
 def get_rag_graph(platform, model, temperature, selected_kbs, KBS):
@@ -25,19 +15,18 @@ def get_rag_graph(platform, model, temperature, selected_kbs, KBS):
     tool_node = ToolNode(tools)
 
     def call_model(state):
-        messages = state['messages']
-        llm = get_chatllm(platform, model, temperature=temperature).bind_tools(tools, parallel_tool_calls=False, tool_choice="any")
-        response = llm.invoke(messages)
-        return {"messages": [response]}
+        llm = get_chatllm(platform, model, temperature=temperature)
+        llm_with_tools = llm.bind_tools(tools, tool_choice="any")
+        return {"messages": [llm_with_tools.invoke(state["messages"])]}
 
     workflow = StateGraph(MessagesState)
 
     workflow.add_node("agent", call_model)
     workflow.add_node("tools", tool_node)
 
-    workflow.add_edge(START, "agent")
-    workflow.add_conditional_edges("agent", should_continue)
+    workflow.add_conditional_edges("agent", tools_condition)
     workflow.add_edge("tools", "agent")
+    workflow.set_entry_point("agent")
 
     checkpointer = MemorySaver()
     app = workflow.compile(checkpointer=checkpointer)
