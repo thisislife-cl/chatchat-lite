@@ -56,15 +56,15 @@ def get_chatllm(
 ):
     if platform_type == "Ollama":
         if not base_url:
-            base_url = "http://127.0.0.1:11434"
+            base_url = "http://127.0.0.1:11434/v1"
         if not api_key:
             api_key = "ollama"
-        return ChatOllama(
-            temperature=temperature,
-            streaming=True,
-            model=model,
-            base_url=base_url
-        )
+        # return ChatOllama(
+        #     temperature=temperature,
+        #     # streaming=True,
+        #     model=model,
+        #     base_url=base_url
+        # )
     elif platform_type == "Xinference":
         if not base_url:
             base_url = "http://127.0.0.1:9997/v1"
