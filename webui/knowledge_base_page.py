@@ -3,7 +3,7 @@ import os
 import streamlit as st
 from utils import PLATFORMS, get_embedding_models, get_kb_names
 from langchain_chroma import Chroma
-from langchain_text_splitters import RecursiveCharacterTextSplitter
+from langchain_text_splitters import RecursiveCharacterTextSplitter, MarkdownTextSplitter
 
 from utils import get_embedding_model
 
@@ -83,10 +83,12 @@ def knowledge_base_page():
             )
             docs_list = loader.load()
 
-            text_splitter = RecursiveCharacterTextSplitter.from_tiktoken_encoder(
+            text_splitter = MarkdownTextSplitter(
                 chunk_size=500, chunk_overlap=100
             )
             doc_splits = text_splitter.split_documents(docs_list)
+            for doc in doc_splits:
+                doc.page_content = doc.metadata["source"] + "\n\n" + doc.page_content
 
             import chromadb.api
 

@@ -1,6 +1,7 @@
 import os
 from typing import Literal
 from langchain_openai import ChatOpenAI
+from langchain_ollama import ChatOllama
 from streamlit_flow import streamlit_flow
 from streamlit_flow.elements import StreamlitFlowNode, StreamlitFlowEdge
 from streamlit_flow.state import StreamlitFlowState
@@ -55,9 +56,13 @@ def get_chatllm(
 ):
     if platform_type == "Ollama":
         if not base_url:
-            base_url = "http://127.0.0.1:11434/v1"
-        if not api_key:
-            api_key = "ollama"
+            base_url = "http://127.0.0.1:11434"
+        return ChatOllama(
+            temperature=temperature,
+            # streaming=True,
+            model=model,
+            base_url=base_url
+        )
     elif platform_type == "Xinference":
         if not base_url:
             base_url = "http://127.0.0.1:9997/v1"

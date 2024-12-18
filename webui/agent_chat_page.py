@@ -1,10 +1,9 @@
 import streamlit as st
 from utils import PLATFORMS, get_llm_models, get_chatllm, get_kb_names, get_img_base64
-from typing import Literal
 from langchain_core.messages import AIMessageChunk, ToolMessage
 from langgraph.checkpoint.memory import MemorySaver
-from langgraph.graph import END, START, StateGraph, MessagesState
-from langgraph.prebuilt import ToolNode
+from langgraph.graph import StateGraph, MessagesState
+from langgraph.prebuilt import ToolNode, tools_condition
 from tools import (
     weather_search_tool,
     get_naive_rag_tool,
@@ -14,39 +13,30 @@ from tools import (
     daily_ai_papers_tool,
 )
 
-
-
-def should_continue(state: MessagesState) -> Literal["tools", END]:
-    messages = state['messages']
-    last_message = messages[-1]
-    # print(last_message)
-    if last_message.tool_calls:
-        return "tools"
-    return END
-
+AGENT_PAGE_INTRODUCTION = "你好，我是你的 Chatchat 智能助手，当前页面为`Agent 对话模式`，可以在对话让大模型借助左侧所选工具进行回答，有什么可以帮助你的吗？"
 
 def get_agent_graph(platform, model, temperature, selected_tools, TOOLS):
     tools = [TOOLS[k] for k in selected_tools]
-    tool_node = ToolNode(tools)
+    tool_node = ToolNode(tools=tools)
 
     def call_model(state):
-        messages = state['messages']
-        llm = get_chatllm(platform, model, temperature=temperature).bind_tools(tools, parallel_tool_calls=False)
-        response = llm.invoke(messages)
-        return {"messages": [response]}
+        llm = get_chatllm(platform, model, temperature=temperature)
+        llm_with_tools = llm.bind_tools(tools)
+        return {"messages": [llm_with_tools.invoke(state["messages"])]}
 
     workflow = StateGraph(MessagesState)
 
     workflow.add_node("agent", call_model)
     workflow.add_node("tools", tool_node)
 
-    workflow.add_edge(START, "agent")
-    workflow.add_conditional_edges("agent", should_continue)
+    workflow.add_conditional_edges("agent", tools_condition)
     workflow.add_edge("tools", "agent")
+    workflow.set_entry_point("agent")
 
     checkpointer = MemorySaver()
     app = workflow.compile(checkpointer=checkpointer)
     return app
+
 
 def graph_response(graph, input):
     for event in graph.stream(
@@ -68,6 +58,12 @@ def graph_response(graph, input):
                 st.write("工具输出：")
                 st.code(event[0].content, wrap_lines=True) # Placeholder for tool output that will be updated later below
                 s.update(label="已完成工具调用！", expanded=False)
+            st.session_state["agent_tool_calls"].append(
+                {
+                    "status": "已完成工具调用！",
+                    "tool": event[0].name,
+                    "content": event[0].content
+                })
 
 
 def get_agent_chat_response(platform, model, temperature, input, selected_tools, TOOLS):
@@ -76,14 +72,25 @@ def get_agent_chat_response(platform, model, temperature, input, selected_tools,
 
 
 def display_chat_history():
-    for message in st.session_state["agent_chat_history"]:
+    for message in st.session_state["agent_chat_history_with_tool_call"]:
         with st.chat_message(message["role"], avatar=get_img_base64("chatchat_avatar.png") if message["role"] == "assistant" else None):
+            if "tool_calls" in message.keys():
+                for tool_call in message["tool_calls"]:
+                    with st.status(tool_call["status"], expanded=False):
+                        st.write("已调用 `", tool_call["tool"], "` 工具")
+                        st.write("工具输出：")
+                        st.code(tool_call["content"], wrap_lines=True)  # Placeholder for tool output that will be updated later below
+
             st.write(message["content"])
 
 def clear_chat_history():
     st.session_state["agent_chat_history"] = [
-            {"role": "assistant", "content": "你好，我是你的 Chatchat 智能助手，当前页面为`Agent 对话模式`，可以在对话让大模型借助左侧所选工具进行回答，有什么可以帮助你的吗？"}
+            {"role": "assistant", "content": AGENT_PAGE_INTRODUCTION}
         ]
+    st.session_state["agent_chat_history_with_tool_call"] = [
+        {"role": "assistant", "content": AGENT_PAGE_INTRODUCTION}
+    ]
+    st.session_state["agent_tool_calls"] = []
 
 
 def agent_chat_page():
@@ -102,8 +109,14 @@ def agent_chat_page():
 
     if "agent_chat_history" not in st.session_state:
         st.session_state["agent_chat_history"] = [
-            {"role": "assistant", "content": "你好，我是你的 Chatchat 智能助手，当前页面为`Agent 对话模式`，可以在对话让大模型借助左侧所选工具进行回答，有什么可以帮助你的吗？"}
+            {"role": "assistant", "content": AGENT_PAGE_INTRODUCTION}
         ]
+    if "agent_chat_history_with_tool_call" not in st.session_state:
+        st.session_state["agent_chat_history_with_tool_call"] = [
+            {"role": "assistant", "content": AGENT_PAGE_INTRODUCTION}
+        ]
+    if "agent_tool_calls" not in st.session_state:
+        st.session_state["agent_tool_calls"] = []
 
     with st.sidebar:
         selected_tools = st.pills("请选择对话中可使用的工具", list(TOOLS.keys()), selection_mode="multi")
@@ -128,6 +141,7 @@ def agent_chat_page():
         with st.chat_message("user"):
             st.write(input)
         st.session_state["agent_chat_history"] += [{"role": 'user', "content": input}]
+        st.session_state["agent_chat_history_with_tool_call"] += [{"role": 'user', "content": input}]
 
         # print(st.session_state["agent_chat_history"][-history_len:])
         stream_response = get_agent_chat_response(
@@ -142,4 +156,5 @@ def agent_chat_page():
         with st.chat_message("assistant", avatar=get_img_base64("chatchat_avatar.png")):
             response1 = st.write_stream(stream_response)
         st.session_state["agent_chat_history"] += [{"role": 'assistant', "content": response1}]
-
+        st.session_state["agent_chat_history_with_tool_call"] += [{"role": 'assistant', "content": response1, "tool_calls": st.session_state["agent_tool_calls"]}]
+        st.session_state["agent_tool_calls"] = []
